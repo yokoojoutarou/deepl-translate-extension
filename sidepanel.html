@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeepL Translate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1 class="title">DeepL Translate</h1>
+    </div>
+    <button id="settingsBtn" class="icon-btn" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Language Selector -->
+  <div class="lang-bar">
+    <div class="lang-select-wrap">
+      <label for="sourceLang">From</label>
+      <select id="sourceLang">
+        <option value="auto" selected>Auto Detect</option>
+        <option value="EN">English</option>
+        <option value="JA">日本語</option>
+        <option value="DE">Deutsch</option>
+        <option value="FR">Français</option>
+        <option value="ES">Español</option>
+        <option value="IT">Italiano</option>
+        <option value="NL">Nederlands</option>
+        <option value="PL">Polski</option>
+        <option value="PT">Português</option>
+        <option value="RU">Русский</option>
+        <option value="ZH">中文</option>
+        <option value="KO">한국어</option>
+      </select>
+    </div>
+    <button id="swapLangsBtn" class="swap-btn" title="Swap languages">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M7 16l-4-4 4-4"/>
+        <path d="M17 8l4 4-4 4"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+      </svg>
+    </button>
+    <div class="lang-select-wrap">
+      <label for="targetLang">To</label>
+      <select id="targetLang">
+        <option value="JA" selected>日本語</option>
+        <option value="EN-US">English (US)</option>
+        <option value="EN-GB">English (UK)</option>
+        <option value="DE">Deutsch</option>
+        <option value="FR">Français</option>
+        <option value="ES">Español</option>
+        <option value="IT">Italiano</option>
+        <option value="NL">Nederlands</option>
+        <option value="PL">Polski</option>
+        <option value="PT-BR">Português (BR)</option>
+        <option value="PT-PT">Português (PT)</option>
+        <option value="RU">Русский</option>
+        <option value="ZH-HANS">中文（簡体）</option>
+        <option value="ZH-HANT">中文（繁体）</option>
+        <option value="KO">한국어</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Source Text -->
+  <div class="card source-card">
+    <div class="card-header">
+      <span class="card-label">Original</span>
+      <div class="card-actions">
+        <button id="clearBtn" class="small-btn" title="Clear">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <textarea id="sourceText" placeholder="Select text on any webpage, or type here..." rows="5"></textarea>
+    <div class="card-footer">
+      <span id="charCount" class="char-count">0 chars</span>
+      <button id="translateBtn" class="translate-btn">
+        <span class="btn-text">Translate</span>
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Translation Result -->
+  <div class="card result-card">
+    <div class="card-header">
+      <span class="card-label">Translation</span>
+      <span id="detectedLang" class="detected-lang"></span>
+      <div class="card-actions">
+        <button id="copyBtn" class="small-btn" title="Copy translation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="resultText" class="result-text">
+      <span class="placeholder-text">Translation will appear here...</span>
+    </div>
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator hidden">
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="loading-text">Translating...</span>
+    </div>
+    <!-- Error Display -->
+    <div id="errorDisplay" class="error-display hidden"></div>
+  </div>
+
+  <!-- Auto-translate Toggle -->
+  <div class="options-bar">
+    <label class="toggle-label" for="autoTranslate">
+      <span>Auto-translate on selection</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="autoTranslate" checked>
+        <span class="toggle-slider"></span>
+      </div>
+    </label>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button id="closeModalBtn" class="icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="apiKeyInput">DeepL API Key</label>
+          <div class="api-key-input-wrap">
+            <input type="password" id="apiKeyInput" placeholder="Enter your DeepL API key">
+            <button id="toggleKeyVisibility" class="icon-btn" title="Toggle visibility">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="apiTypeSelect">API Plan</label>
+          <select id="apiTypeSelect">
+            <option value="free" selected>Free</option>
+            <option value="pro">Pro</option>
+          </select>
+        </div>
+        <p class="help-text">
+          Get your API key from 
+          <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noopener">deepl.com/pro</a>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="primary-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
