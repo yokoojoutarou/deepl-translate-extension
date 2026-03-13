@@ -19,6 +19,10 @@
     const closeModalBtn = document.getElementById('closeModalBtn');
     const apiKeyInput = document.getElementById('apiKeyInput');
     const apiTypeSelect = document.getElementById('apiTypeSelect');
+    const aiProviderSelect = document.getElementById('aiProviderSelect');
+    const aiApiKeyInput = document.getElementById('aiApiKeyInput');
+    const aiModelSelect = document.getElementById('aiModelSelect');
+    const aiModelHelp = document.getElementById('aiModelHelp');
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     const toggleKeyVisibility = document.getElementById('toggleKeyVisibility');
     const loadingIndicator = document.getElementById('loadingIndicator');
@@ -31,6 +35,14 @@
 
     let isTranslating = false;
     let translateDebounce = null;
+    let aiModelFetchDebounce = null;
+    let aiFetchRequestId = 0;
+
+    const FALLBACK_AI_PROVIDER_MODELS = {
+        openai: ['gpt-4.1-mini', 'gpt-4.1', 'gpt-4o-mini'],
+        anthropic: ['claude-3-5-haiku-latest', 'claude-3-7-sonnet-latest'],
+        gemini: ['gemini-2.0-flash', 'gemini-1.5-pro']
+    };
 
     // --- Initialize ---
     init();
@@ -38,7 +50,8 @@
     async function init() {
         // Load saved settings
         const settings = await chrome.storage.local.get([
-            'apiKey', 'apiType', 'targetLang', 'sourceLang', 'autoTranslate', 'workspaceMode'
+            'apiKey', 'apiType', 'targetLang', 'sourceLang', 'autoTranslate', 'workspaceMode',
+            'aiProvider', 'aiApiKeys', 'aiModels'
         ]);
 
         if (settings.apiKey) apiKeyInput.value = settings.apiKey;
@@ -48,6 +61,19 @@
         if (settings.autoTranslate !== undefined) {
             autoTranslate.checked = settings.autoTranslate;
         }
+
+        const aiProvider = settings.aiProvider || 'openai';
+        aiProviderSelect.value = aiProvider;
+
+        const aiApiKeys = settings.aiApiKeys || {};
+        aiApiKeyInput.value = aiApiKeys[aiProvider] || '';
+        const aiModels = settings.aiModels || {};
+
+        await refreshAiModels({
+            provider: aiProvider,
+            apiKey: aiApiKeys[aiProvider] || '',
+            selectedModel: aiModels[aiProvider],
+        });
 
         applyWorkspaceMode(settings.workspaceMode === 'ai' ? 'ai' : 'translate');
 
@@ -217,6 +243,36 @@
         chrome.storage.local.set({ autoTranslate: autoTranslate.checked });
     });
 
+    aiProviderSelect.addEventListener('change', async () => {
+        const selectedProvider = aiProviderSelect.value;
+        const stored = await chrome.storage.local.get(['aiApiKeys', 'aiModels']);
+        const aiApiKeys = stored.aiApiKeys || {};
+        const aiModels = stored.aiModels || {};
+
+        aiApiKeyInput.value = aiApiKeys[selectedProvider] || '';
+        await refreshAiModels({
+            provider: selectedProvider,
+            apiKey: aiApiKeys[selectedProvider] || '',
+            selectedModel: aiModels[selectedProvider],
+        });
+    });
+
+    aiApiKeyInput.addEventListener('input', () => {
+        clearTimeout(aiModelFetchDebounce);
+
+        aiModelFetchDebounce = setTimeout(async () => {
+            const provider = aiProviderSelect.value;
+            const apiKey = aiApiKeyInput.value.trim();
+            const selectedModel = aiModelSelect.value;
+
+            await refreshAiModels({
+                provider,
+                apiKey,
+                selectedModel,
+            });
+        }, 450);
+    });
+
     function saveLangPrefs() {
         chrome.storage.local.set({
             sourceLang: sourceLang.value,
@@ -259,13 +315,100 @@
     saveSettingsBtn.addEventListener('click', async () => {
         const apiKey = apiKeyInput.value.trim();
         const apiType = apiTypeSelect.value;
+        const aiProvider = aiProviderSelect.value;
+        const aiApiKey = aiApiKeyInput.value.trim();
+        const aiModel = aiModelSelect.value;
 
-        await chrome.storage.local.set({ apiKey, apiType });
+        const stored = await chrome.storage.local.get(['aiApiKeys', 'aiModels']);
+        const aiApiKeys = { ...(stored.aiApiKeys || {}) };
+        const aiModels = { ...(stored.aiModels || {}) };
+
+        if (aiApiKey) {
+            aiApiKeys[aiProvider] = aiApiKey;
+            aiModels[aiProvider] = aiModel;
+        } else {
+            delete aiApiKeys[aiProvider];
+            delete aiModels[aiProvider];
+        }
+
+        await chrome.storage.local.set({
+            apiKey,
+            apiType,
+            aiProvider,
+            aiApiKeys,
+            aiModels,
+        });
         settingsModal.classList.add('hidden');
 
         // Show confirmation toast
         showToast('Settings saved');
     });
+
+    function populateAiModelOptions(provider, models, selectedModel, providerApiKey) {
+        aiModelSelect.innerHTML = '';
+
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            aiModelSelect.appendChild(option);
+        });
+
+        if (selectedModel && models.includes(selectedModel)) {
+            aiModelSelect.value = selectedModel;
+        } else if (models.length > 0) {
+            aiModelSelect.value = models[0];
+        }
+
+        const hasKey = Boolean((providerApiKey || '').trim());
+        aiModelSelect.disabled = !hasKey;
+        aiModelHelp.textContent = hasKey
+            ? `Available models for ${provider}`
+            : 'Set API key for this provider to enable model selection.';
+    }
+
+    async function refreshAiModels({ provider, apiKey, selectedModel }) {
+        const hasKey = Boolean((apiKey || '').trim());
+        const requestId = ++aiFetchRequestId;
+
+        if (!hasKey) {
+            const fallback = FALLBACK_AI_PROVIDER_MODELS[provider] || [];
+            populateAiModelOptions(provider, fallback, selectedModel, apiKey);
+            return;
+        }
+
+        aiModelSelect.disabled = true;
+        aiModelHelp.textContent = 'Loading models...';
+
+        try {
+            const response = await chrome.runtime.sendMessage({
+                type: 'AI_FETCH_MODELS',
+                provider,
+                apiKey,
+            });
+
+            if (requestId !== aiFetchRequestId) {
+                return;
+            }
+
+            if (!response?.success) {
+                throw new Error(response?.error || 'Failed to fetch models.');
+            }
+
+            const models = Array.isArray(response.data?.models) ? response.data.models : [];
+
+            if (models.length === 0) {
+                throw new Error('No models available from this provider.');
+            }
+
+            populateAiModelOptions(provider, models, selectedModel, apiKey);
+            aiModelHelp.textContent = `Fetched ${models.length} models from ${provider}.`;
+        } catch (error) {
+            const fallback = FALLBACK_AI_PROVIDER_MODELS[provider] || [];
+            populateAiModelOptions(provider, fallback, selectedModel, apiKey);
+            aiModelHelp.textContent = `Model auto-fetch failed. Using fallback list for ${provider}.`;
+        }
+    }
 
     // --- Helpers ---
     function updateCharCount() {

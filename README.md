@@ -12,25 +12,39 @@ A seamless Chrome sidebar translation extension powered by the DeepL API. Select
 - 📋 **Copy to clipboard** — Copy translation results instantly
 - ⌨️ **Keyboard shortcut** — `Ctrl+Enter` to translate
 - 💬 **Ask AI (scaffold)** — Chat-style panel to ask about selected text (stub response)
+- ⚙️ **AI provider settings** — Register API key per provider and switch models dynamically
+- 🔄 **Auto model discovery** — Models are fetched automatically from the selected provider
 - 🎨 **Dark theme UI** — Minimal black-based design for a distraction-free experience
 - 🔑 **Free & Pro API support** — Works with DeepL's free and paid API plans
 
 ## Installation
 
 ### 1. Get a DeepL API Key
+
 Sign up for a free account at [deepl.com/pro](https://www.deepl.com/pro#developer) and copy your API key.
 
 ### 2. Load the Extension
+
 1. Open Chrome and go to `chrome://extensions`
 2. Enable **Developer mode** (top right toggle)
 3. Click **"Load unpacked"**
 4. Select this folder (`chrome-translate-extension`)
 
 ### 3. Configure API Key
+
 1. Click the extension icon in the toolbar — the sidebar opens
 2. Click the ⚙️ settings icon
 3. Enter your DeepL API key and select your plan (Free / Pro)
 4. Click **Save**
+
+### 4. Configure AI Provider
+
+1. Open **Settings**
+2. Select AI Provider (OpenAI / Anthropic / Gemini)
+3. Enter API key for the selected provider
+4. Model list is auto-fetched from provider (fallback list is used if fetch fails)
+5. Choose model
+6. Click **Save**
 
 ## Usage
 
@@ -41,7 +55,7 @@ Sign up for a free account at [deepl.com/pro](https://www.deepl.com/pro#develope
 
 ## File Structure
 
-```
+```text
 chrome-translate-extension/
 ├── manifest.json      # Manifest V3 configuration
 ├── core/

@@ -210,6 +210,29 @@
           Get your API key from 
           <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noopener">deepl.com/pro</a>
         </p>
+
+        <hr class="settings-divider">
+
+        <div class="form-group">
+          <label for="aiProviderSelect">AI Provider</label>
+          <select id="aiProviderSelect">
+            <option value="openai" selected>OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="aiApiKeyInput">AI API Key</label>
+          <input type="password" id="aiApiKeyInput" placeholder="Enter API key for selected provider">
+        </div>
+
+        <div class="form-group">
+          <label for="aiModelSelect">AI Model</label>
+          <select id="aiModelSelect"></select>
+        </div>
+
+        <p id="aiModelHelp" class="help-text"></p>
       </div>
       <div class="modal-footer">
         <button id="saveSettingsBtn" class="primary-btn">Save</button>
