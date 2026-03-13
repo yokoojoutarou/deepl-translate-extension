@@ -405,6 +405,30 @@ body {
   text-decoration: underline;
 }
 
+.ai-msg-assistant .ai-msg-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 12px;
+  font-size: 12px;
+  display: block;
+  overflow-x: auto;
+}
+
+.ai-msg-assistant .ai-msg-body th,
+.ai-msg-assistant .ai-msg-body td {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+  min-width: 80px;
+}
+
+.ai-msg-assistant .ai-msg-body th {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .ai-msg-assistant .ai-msg-body .katex-block,
 .ai-msg-assistant .ai-msg-body .katex-display {
   overflow-x: auto;

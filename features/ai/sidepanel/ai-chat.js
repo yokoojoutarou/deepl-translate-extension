@@ -11,6 +11,16 @@
       })
     : null;
 
+  if (markdownRenderer && typeof window.markdownitMultimdTable === 'function') {
+    markdownRenderer.use(window.markdownitMultimdTable, {
+      multiline: true,
+      rowspan: true,
+      headerless: true,
+      multibody: true,
+      autolabel: true,
+    });
+  }
+
   function setupMathPlugin(md) {
     if (!md || !hasKatex) return;
 
