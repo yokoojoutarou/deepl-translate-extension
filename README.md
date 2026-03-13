@@ -43,11 +43,15 @@ Sign up for a free account at [deepl.com/pro](https://www.deepl.com/pro#develope
 ```
 chrome-translate-extension/
 ├── manifest.json      # Manifest V3 configuration
-├── background.js      # Service Worker — API calls & message routing
-├── content.js         # Content script — text selection detection
-├── sidepanel.html     # Side panel UI
-├── sidepanel.css      # Dark theme styles
-├── sidepanel.js       # Side panel logic
+├── core/
+│   └── background.js  # Service Worker — API calls & message routing
+├── features/
+│   └── translate/
+│       ├── content.js # Content script — text selection detection
+│       └── sidepanel/
+│           ├── sidepanel.html # Side panel UI
+│           ├── sidepanel.css  # Dark theme styles
+│           └── sidepanel.js   # Side panel logic
 └── icons/             # Extension icons (16/48/128px)
 ```
 

@@ -9,15 +9,15 @@
     "storage"
   ],
   "side_panel": {
-    "default_path": "sidepanel.html"
+    "default_path": "features/translate/sidepanel/sidepanel.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "core/background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["features/translate/content.js"]
     }
   ],
   "action": {
