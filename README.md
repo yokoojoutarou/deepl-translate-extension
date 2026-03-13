@@ -15,6 +15,7 @@ A seamless Chrome sidebar translation extension powered by the DeepL API. Select
 - ⚙️ **AI provider settings** — Register API key per provider and switch models dynamically
 - 🔄 **Auto model discovery** — Models are fetched automatically from the selected provider
 - 🧠 **Context-aware AI** — Uses full page content by default and prioritizes selected text when present
+- 🧹 **Noise-reduced context** — Filters navigation/ads/footer-like content before sending page context to AI
 - 🎨 **Dark theme UI** — Minimal black-based design for a distraction-free experience
 - 🔑 **Free & Pro API support** — Works with DeepL's free and paid API plans
 
