@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../vendor/katex.min.css">
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
@@ -29,6 +30,13 @@
       </svg>
     </button>
   </header>
+
+  <div class="mode-switch" role="tablist" aria-label="Workspace mode">
+    <button id="modeTranslateBtn" class="mode-btn active" role="tab" aria-selected="true">Translate</button>
+    <button id="modeAiBtn" class="mode-btn" role="tab" aria-selected="false">Ask AI</button>
+  </div>
+
+  <div id="translateWorkspace">
 
   <!-- Language Selector -->
   <div class="lang-bar">
@@ -144,6 +152,28 @@
     </label>
   </div>
 
+  </div>
+
+  <div id="aiWorkspace" class="hidden">
+    <div id="aiMessages" class="ai-messages">
+      <div class="ai-msg ai-msg-assistant">
+        <div class="ai-msg-body">質問を入力してください。現在は雛形のため、スタブ応答を返します。</div>
+      </div>
+    </div>
+
+    <div class="ai-input-dock">
+      <div class="ai-input-shell">
+        <textarea id="aiPromptInput" rows="3" placeholder="Ask follow-up, summarize, explain, or rewrite..."></textarea>
+        <button id="aiSendBtn" class="ai-send-btn" title="Send message" aria-label="Send message">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings Modal -->
   <div id="settingsModal" class="modal hidden">
     <div class="modal-overlay"></div>
@@ -181,6 +211,29 @@
           Get your API key from 
           <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noopener">deepl.com/pro</a>
         </p>
+
+        <hr class="settings-divider">
+
+        <div class="form-group">
+          <label for="aiProviderSelect">AI Provider</label>
+          <select id="aiProviderSelect">
+            <option value="openai" selected>OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="aiApiKeyInput">AI API Key</label>
+          <input type="password" id="aiApiKeyInput" placeholder="Enter API key for selected provider">
+        </div>
+
+        <div class="form-group">
+          <label for="aiModelSelect">AI Model</label>
+          <select id="aiModelSelect"></select>
+        </div>
+
+        <p id="aiModelHelp" class="help-text"></p>
       </div>
       <div class="modal-footer">
         <button id="saveSettingsBtn" class="primary-btn">Save</button>
@@ -188,6 +241,10 @@
     </div>
   </div>
 
+  <script src="../../../vendor/katex.min.js"></script>
+  <script src="../../../vendor/markdown-it.min.js"></script>
+  <script src="../../../vendor/markdown-it-multimd-table.min.js"></script>
+  <script src="../../ai/sidepanel/ai-chat.js"></script>
   <script src="sidepanel.js"></script>
 </body>
 </html>
