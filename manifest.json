@@ -6,7 +6,8 @@
   "permissions": [
     "sidePanel",
     "activeTab",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "host_permissions": [
     "https://api.deepl.com/*",

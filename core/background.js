@@ -105,10 +105,13 @@ async function handleAiAsk(prompt, contextText) {
   }
 
   const model = aiModels[provider] || getDefaultAiModel(provider);
-  const cleanContext = (contextText || '').trim();
-  const userPrompt = cleanContext
-    ? `Selected context:\n${cleanContext}\n\nQuestion:\n${trimmedPrompt}`
-    : trimmedPrompt;
+  const pageContext = await getActiveTabPageContext();
+  const selectedText = ((contextText || '').trim() || (pageContext?.selectedText || '').trim()).slice(0, 4000);
+  const userPrompt = buildAiPromptWithContext({
+    question: trimmedPrompt,
+    selectedText,
+    pageContext,
+  });
 
   if (provider === 'openai') {
     return await askOpenAI(apiKey, model, userPrompt);
@@ -123,6 +126,59 @@ async function handleAiAsk(prompt, contextText) {
   }
 
   throw new Error(`Unsupported AI provider: ${provider}`);
+}
+
+function buildAiPromptWithContext({ question, selectedText, pageContext }) {
+  const title = (pageContext?.title || '').trim();
+  const url = (pageContext?.url || '').trim();
+  const pageText = (pageContext?.pageText || '').trim();
+
+  const parts = [
+    'You are answering a question about the current website content.',
+    'Use the selected excerpt as highest-priority evidence when available.',
+    'Use full page context as background/supporting context.',
+    '',
+    `Question:\n${question}`,
+  ];
+
+  if (selectedText) {
+    parts.push('', 'PRIORITY CONTEXT (selected text, highest weight):', selectedText);
+  }
+
+  if (title || url) {
+    parts.push('', 'Page metadata:');
+    if (title) parts.push(`- Title: ${title}`);
+    if (url) parts.push(`- URL: ${url}`);
+  }
+
+  if (pageText) {
+    parts.push('', 'PAGE CONTEXT (full page content, lower weight):', pageText);
+  }
+
+  return parts.join('\n');
+}
+
+async function getActiveTabPageContext() {
+  try {
+    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const activeTab = tabs?.[0];
+
+    if (!activeTab?.id) {
+      return null;
+    }
+
+    const response = await chrome.tabs.sendMessage(activeTab.id, {
+      type: 'REQUEST_PAGE_CONTEXT',
+    });
+
+    if (!response?.success) {
+      return null;
+    }
+
+    return response.data || null;
+  } catch (error) {
+    return null;
+  }
 }
 
 function getDefaultAiModel(provider) {
