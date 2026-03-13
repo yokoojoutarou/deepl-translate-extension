@@ -23,6 +23,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true; // Keep message channel open for async response
   }
+
+  if (message.type === 'AI_ASK') {
+    handleAiAsk(message.prompt, message.contextText)
+      .then(result => sendResponse({ success: true, data: result }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 });
 
 /**
@@ -71,5 +78,33 @@ async function handleTranslation(text, targetLang, sourceLang) {
   return {
     translatedText: data.translations[0].text,
     detectedSourceLang: data.translations[0].detected_source_language,
+  };
+}
+
+async function handleAiAsk(prompt, contextText) {
+  const trimmedPrompt = (prompt || '').trim();
+  if (!trimmedPrompt) {
+    throw new Error('Prompt is empty.');
+  }
+
+  const cleanContext = (contextText || '').trim();
+  const contextPreview = cleanContext
+    ? (cleanContext.length > 240 ? `${cleanContext.slice(0, 240)}...` : cleanContext)
+    : null;
+
+  const parts = [
+    'AI feature scaffold response',
+    '',
+    `Question: ${trimmedPrompt}`,
+  ];
+
+  if (contextPreview) {
+    parts.push('', 'Context from selected text:', contextPreview);
+  }
+
+  parts.push('', 'Next: connect this handler to your preferred LLM provider API.');
+
+  return {
+    answer: parts.join('\n')
   };
 }

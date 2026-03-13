@@ -24,6 +24,10 @@
     const loadingIndicator = document.getElementById('loadingIndicator');
     const errorDisplay = document.getElementById('errorDisplay');
     const detectedLang = document.getElementById('detectedLang');
+    const modeTranslateBtn = document.getElementById('modeTranslateBtn');
+    const modeAiBtn = document.getElementById('modeAiBtn');
+    const translateWorkspace = document.getElementById('translateWorkspace');
+    const aiWorkspace = document.getElementById('aiWorkspace');
 
     let isTranslating = false;
     let translateDebounce = null;
@@ -34,7 +38,7 @@
     async function init() {
         // Load saved settings
         const settings = await chrome.storage.local.get([
-            'apiKey', 'apiType', 'targetLang', 'sourceLang', 'autoTranslate'
+            'apiKey', 'apiType', 'targetLang', 'sourceLang', 'autoTranslate', 'workspaceMode'
         ]);
 
         if (settings.apiKey) apiKeyInput.value = settings.apiKey;
@@ -43,6 +47,12 @@
         if (settings.sourceLang) sourceLang.value = settings.sourceLang;
         if (settings.autoTranslate !== undefined) {
             autoTranslate.checked = settings.autoTranslate;
+        }
+
+        applyWorkspaceMode(settings.workspaceMode === 'ai' ? 'ai' : 'translate');
+
+        if (window.AIChatFeature && typeof window.AIChatFeature.init === 'function') {
+            window.AIChatFeature.init();
         }
 
         // Check if API key is set; if not, show settings modal
@@ -56,6 +66,10 @@
         if (message.type === 'UPDATE_SOURCE_TEXT') {
             sourceText.value = message.text;
             updateCharCount();
+
+            window.dispatchEvent(new CustomEvent('deepl:selectedTextUpdated', {
+                detail: { text: message.text || '' }
+            }));
 
             if (autoTranslate.checked && message.text.trim()) {
                 debouncedTranslate();
@@ -190,6 +204,15 @@
     // Save language prefs on change
     sourceLang.addEventListener('change', saveLangPrefs);
     targetLang.addEventListener('change', saveLangPrefs);
+
+    modeTranslateBtn.addEventListener('click', () => {
+        applyWorkspaceMode('translate');
+    });
+
+    modeAiBtn.addEventListener('click', () => {
+        applyWorkspaceMode('ai');
+    });
+
     autoTranslate.addEventListener('change', () => {
         chrome.storage.local.set({ autoTranslate: autoTranslate.checked });
     });
@@ -199,6 +222,20 @@
             sourceLang: sourceLang.value,
             targetLang: targetLang.value,
         });
+    }
+
+    function applyWorkspaceMode(mode) {
+        const isAi = mode === 'ai';
+
+        modeTranslateBtn.classList.toggle('active', !isAi);
+        modeAiBtn.classList.toggle('active', isAi);
+        modeTranslateBtn.setAttribute('aria-selected', String(!isAi));
+        modeAiBtn.setAttribute('aria-selected', String(isAi));
+
+        translateWorkspace.classList.toggle('hidden', isAi);
+        aiWorkspace.classList.toggle('hidden', !isAi);
+
+        chrome.storage.local.set({ workspaceMode: isAi ? 'ai' : 'translate' });
     }
 
     // --- Settings Modal ---

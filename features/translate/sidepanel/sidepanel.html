@@ -30,6 +30,13 @@
     </button>
   </header>
 
+  <div class="mode-switch" role="tablist" aria-label="Workspace mode">
+    <button id="modeTranslateBtn" class="mode-btn active" role="tab" aria-selected="true">Translate</button>
+    <button id="modeAiBtn" class="mode-btn" role="tab" aria-selected="false">Ask AI</button>
+  </div>
+
+  <div id="translateWorkspace">
+
   <!-- Language Selector -->
   <div class="lang-bar">
     <div class="lang-select-wrap">
@@ -144,6 +151,28 @@
     </label>
   </div>
 
+  </div>
+
+  <div id="aiWorkspace" class="hidden">
+    <div id="aiMessages" class="ai-messages">
+      <div class="ai-msg ai-msg-assistant">
+        <div class="ai-msg-body">質問を入力してください。現在は雛形のため、スタブ応答を返します。</div>
+      </div>
+    </div>
+
+    <div class="ai-input-dock">
+      <div class="ai-input-shell">
+        <textarea id="aiPromptInput" rows="3" placeholder="Ask follow-up, summarize, explain, or rewrite..."></textarea>
+        <button id="aiSendBtn" class="ai-send-btn" title="Send message" aria-label="Send message">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings Modal -->
   <div id="settingsModal" class="modal hidden">
     <div class="modal-overlay"></div>
@@ -188,6 +217,7 @@
     </div>
   </div>
 
+  <script src="../../ai/sidepanel/ai-chat.js"></script>
   <script src="sidepanel.js"></script>
 </body>
 </html>

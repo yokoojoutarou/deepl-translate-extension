@@ -11,6 +11,7 @@ A seamless Chrome sidebar translation extension powered by the DeepL API. Select
 - 🔄 **Language swap** — Swap source/target languages with one click
 - 📋 **Copy to clipboard** — Copy translation results instantly
 - ⌨️ **Keyboard shortcut** — `Ctrl+Enter` to translate
+- 💬 **Ask AI (scaffold)** — Chat-style panel to ask about selected text (stub response)
 - 🎨 **Dark theme UI** — Minimal black-based design for a distraction-free experience
 - 🔑 **Free & Pro API support** — Works with DeepL's free and paid API plans
 
@@ -46,6 +47,9 @@ chrome-translate-extension/
 ├── core/
 │   └── background.js  # Service Worker — API calls & message routing
 ├── features/
+│   ├── ai/
+│   │   └── sidepanel/
+│   │       └── ai-chat.js    # AI chat UI logic scaffold
 │   └── translate/
 │       ├── content.js # Content script — text selection detection
 │       └── sidepanel/
