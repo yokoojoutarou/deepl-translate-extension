@@ -309,7 +309,6 @@ body {
 .ai-msg-body {
   font-size: 13px;
   line-height: 1.55;
-  white-space: pre-wrap;
   word-break: break-word;
 }
 
@@ -318,6 +317,7 @@ body {
   background: rgba(0, 212, 170, 0.1);
   border-radius: 12px;
   padding: 10px 12px;
+  white-space: pre-wrap;
 }
 
 .ai-msg-assistant {
@@ -327,6 +327,82 @@ body {
 .ai-msg-assistant .ai-msg-body {
   padding: 2px 0;
   color: var(--text-primary);
+  white-space: normal;
+}
+
+.ai-msg-assistant .ai-msg-body p {
+  margin: 0 0 10px;
+}
+
+.ai-msg-assistant .ai-msg-body p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-msg-assistant .ai-msg-body h1,
+.ai-msg-assistant .ai-msg-body h2,
+.ai-msg-assistant .ai-msg-body h3,
+.ai-msg-assistant .ai-msg-body h4,
+.ai-msg-assistant .ai-msg-body h5,
+.ai-msg-assistant .ai-msg-body h6 {
+  margin: 14px 0 8px;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.ai-msg-assistant .ai-msg-body h1 { font-size: 18px; }
+.ai-msg-assistant .ai-msg-body h2 { font-size: 16px; }
+.ai-msg-assistant .ai-msg-body h3 { font-size: 15px; }
+
+.ai-msg-assistant .ai-msg-body ul,
+.ai-msg-assistant .ai-msg-body ol {
+  margin: 0 0 10px 18px;
+  padding: 0;
+}
+
+.ai-msg-assistant .ai-msg-body li {
+  margin-bottom: 4px;
+}
+
+.ai-msg-assistant .ai-msg-body blockquote {
+  margin: 8px 0;
+  padding: 4px 0 4px 10px;
+  border-left: 3px solid var(--border-focus);
+  color: var(--text-secondary);
+}
+
+.ai-msg-assistant .ai-msg-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.ai-msg-assistant .ai-msg-body pre {
+  margin: 8px 0 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-input);
+  overflow-x: auto;
+}
+
+.ai-msg-assistant .ai-msg-body pre code {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ai-msg-assistant .ai-msg-body a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.ai-msg-assistant .ai-msg-body a:hover {
+  text-decoration: underline;
 }
 
 .ai-input-dock {

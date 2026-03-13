@@ -1,5 +1,20 @@
 (() => {
   let latestSelectedText = '';
+  const markdownRenderer = typeof window.markdownit === 'function'
+    ? window.markdownit({
+        html: false,
+        linkify: true,
+        breaks: true,
+      })
+    : null;
+
+  if (markdownRenderer) {
+    const defaultValidateLink = markdownRenderer.validateLink.bind(markdownRenderer);
+    markdownRenderer.validateLink = (url) => {
+      if (!/^https?:\/\//i.test(url || '')) return false;
+      return defaultValidateLink(url);
+    };
+  }
 
   function createMessage(role, text) {
     const item = document.createElement('div');
@@ -7,7 +22,17 @@
 
     const body = document.createElement('div');
     body.className = 'ai-msg-body';
-    body.textContent = text;
+    if (role === 'assistant') {
+      body.innerHTML = markdownRenderer
+        ? markdownRenderer.render(text || '')
+        : (text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>');
+    } else {
+      body.textContent = text;
+    }
 
     item.appendChild(body);
     return item;
