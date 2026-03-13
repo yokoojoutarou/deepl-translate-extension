@@ -405,6 +405,13 @@ body {
   text-decoration: underline;
 }
 
+.ai-msg-assistant .ai-msg-body .katex-block,
+.ai-msg-assistant .ai-msg-body .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+
 .ai-input-dock {
   position: sticky;
   bottom: 0;
