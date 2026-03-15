@@ -188,19 +188,52 @@ async function handleAiAsk(prompt, contextText) {
     pageContext,
   });
 
+  let result;
+
   if (provider === 'openai') {
-    return await askOpenAI(apiKey, model, userPrompt);
+    result = await askOpenAI(apiKey, model, userPrompt);
+  } else if (provider === 'anthropic') {
+    result = await askAnthropic(apiKey, model, userPrompt);
+  } else if (provider === 'gemini') {
+    result = await askGemini(apiKey, model, userPrompt);
+  } else {
+    throw new Error(`Unsupported AI provider: ${provider}`);
   }
 
-  if (provider === 'anthropic') {
-    return await askAnthropic(apiKey, model, userPrompt);
+  await saveAiExchange({
+    pageContext,
+    question: trimmedPrompt,
+    answer: result?.answer || '',
+    selectedText,
+  });
+
+  return result;
+}
+
+async function saveAiExchange({ pageContext, question, answer, selectedText }) {
+  const repo = globalThis.ExtensionRepository;
+  const url = (pageContext?.url || '').trim();
+
+  if (!repo || !url || !question || !answer) {
+    return;
   }
 
-  if (provider === 'gemini') {
-    return await askGemini(apiKey, model, userPrompt);
-  }
+  try {
+    const title = (pageContext?.title || '').trim();
+    const tags = selectedText ? ['selected-context'] : [];
 
-  throw new Error(`Unsupported AI provider: ${provider}`);
+    await repo.saveChat({
+      url,
+      title,
+      tags,
+      messages: [
+        { role: 'user', content: question, timestamp: new Date().toISOString() },
+        { role: 'assistant', content: answer, timestamp: new Date().toISOString() },
+      ],
+    });
+  } catch {
+    // DB write failures must not break AI response flow.
+  }
 }
 
 function buildAiPromptWithContext({ question, selectedText, pageContext }) {
