@@ -2,6 +2,8 @@
 // DeepL Translate — Background Service Worker
 // ==============================
 
+importScripts('../vendor/dexie.min.js', './db/repository.js');
+
 // Open side panel when extension icon is clicked
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
@@ -37,7 +39,80 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true;
   }
+
+  if (message.type === 'DB_OP') {
+    handleDbOperation(message.operation, message.payload)
+      .then(result => sendResponse({ success: true, data: result }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 });
+
+async function handleDbOperation(operation, payload = {}) {
+  const repo = globalThis.ExtensionRepository;
+
+  if (!repo) {
+    throw new Error('Database repository is not initialized.');
+  }
+
+  if (operation === 'site.ensure') {
+    return repo.ensureSite(payload);
+  }
+
+  if (operation === 'site.getByUrl') {
+    return repo.getSiteByUrl(payload.url);
+  }
+
+  if (operation === 'site.setTags') {
+    return repo.setSiteTags(payload);
+  }
+
+  if (operation === 'chat.save') {
+    return repo.saveChat(payload);
+  }
+
+  if (operation === 'chat.listBySite') {
+    return repo.getChatsBySite(payload);
+  }
+
+  if (operation === 'note.upsert') {
+    return repo.upsertNote(payload);
+  }
+
+  if (operation === 'note.listBySite') {
+    return repo.getNotesBySite(payload);
+  }
+
+  if (operation === 'note.delete') {
+    return repo.deleteNote(payload.noteId);
+  }
+
+  if (operation === 'note.setTags') {
+    return repo.setNoteTags(payload);
+  }
+
+  if (operation === 'marker.upsert') {
+    return repo.upsertMarker(payload);
+  }
+
+  if (operation === 'marker.listBySite') {
+    return repo.getMarkersBySite(payload);
+  }
+
+  if (operation === 'marker.delete') {
+    return repo.deleteMarker(payload.markerId);
+  }
+
+  if (operation === 'tag.rename') {
+    return repo.renameTag(payload);
+  }
+
+  if (operation === 'tag.search') {
+    return repo.findByTag(payload);
+  }
+
+  throw new Error(`Unsupported DB operation: ${operation}`);
+}
 
 /**
  * Call the DeepL API to translate text
