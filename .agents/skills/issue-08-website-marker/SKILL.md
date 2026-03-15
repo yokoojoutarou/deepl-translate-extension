@@ -49,7 +49,7 @@ description: Issue #8 の要件定義。3色ハイライトとDOM位置保存を
 
 - ページ描画を著しく遅くしない。
 - 複数マーカーが重なっても破綻しにくい。
-- Side panel 未起動時もcontent script単体で最低限動作できる。
+- side panel 未起動時もcontent script単体で最低限動作できる。
 
 ## 受け入れ条件
 
